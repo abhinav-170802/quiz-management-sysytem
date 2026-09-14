@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - DataStream</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar glass-panel" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin<span>Panel</span></h2>
+                <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+            </div>
+            <ul class="sidebar-nav">
+                <li class="active" onclick="switchTab('dashboard')">📊 <span>Overview</span></li>
+                <li onclick="switchTab('questions')">📝 <span>Question Bank</span></li>
+                <li onclick="switchTab('users')">👥 <span>User Mgmt</span></li>
+                <li onclick="switchTab('leaderboard')">🏆 <span>Leaderboard</span></li>
+                <li onclick="switchTab('contests')">⚔️ <span>Contests</span></li>
+                <li onclick="switchTab('announcements')">📢 <span>Announcements</span></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button class="btn-neon" style="width: 100%; border-color: #ff3333; color: #ff3333;" onclick="logoutAdmin()">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <header class="admin-topbar glass-panel">
+                <h2 id="current-tab-title">Dashboard Overview</h2>
+                <div class="admin-profile">ROOT ADMIN</div>
+            </header>
+
+            <div class="tab-content active" id="tab-dashboard">
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card glass-panel" style="border-top-color: var(--neon-blue);">
+                        <h3>Total Users</h3>
+                        <div class="value" id="stat-users">0</div>
+                    </div>
+                    <div class="admin-stat-card glass-panel" style="border-top-color: var(--neon-purple);">
+                        <h3>Total Questions</h3>
+                        <div class="value" id="stat-questions">0</div>
+                    </div>
+                    <div class="admin-stat-card glass-panel" style="border-top-color: var(--neon-green);">
+                        <h3>Active Quizzes</h3>
+                        <div class="value" id="stat-active">14</div>
+                    </div>
+                </div>
+                <div class="charts-grid">
+                    <div class="chart-container glass-panel">
+                        <canvas id="usersChart"></canvas>
+                    </div>
+                    <div class="chart-container glass-panel">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Bank Tab -->
+            <div class="tab-content" id="tab-questions">
+                <div class="glass-panel" style="padding: 20px;">
+                    <button class="btn-neon" onclick="openAddQuestion()">+ Add New Question</button>
+                    <input type="file" id="csv-upload" accept=".csv" style="display: none;" onchange="handleCSVUpload(event)">
+                    <button class="btn-neon" onclick="document.getElementById('csv-upload').click()" style="margin-left: 10px; background: rgba(0, 255, 136, 0.2); border-color: #00ff88;">📤 Bulk Upload CSV</button>
+                    
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="btn-neon q-filter-btn active" onclick="setQFilter('Beginner')">Beginner</button>
+                        <button class="btn-neon q-filter-btn" onclick="setQFilter('Intermediate')">Intermediate</button>
+                        <button class="btn-neon q-filter-btn" onclick="setQFilter('Advanced')">Advanced</button>
+                    </div>
+
+                    <table class="admin-table" style="margin-top: 20px;">
+                        <thead>
+                            <tr>
+                                <th>Category / Level</th>
+                                <th>Question</th>
+                                <th>Difficulty</th>
+                                <th>Tags</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="questions-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div class="tab-content" id="tab-users">
+                <div class="glass-panel" style="padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                        <input type="text" id="user-search" class="admin-input" placeholder="Search users by name..." style="width: 300px;" oninput="filterUsers()">
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Score (XP)</th>
+                                <th>Attempts</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Leaderboard Tab -->
+            <div class="tab-content" id="tab-leaderboard">
+                <div class="glass-panel" style="padding: 20px;">
+                    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                        <button class="btn-neon active">Global</button>
+                        <button class="btn-neon">Weekly</button>
+                        <button class="btn-neon" style="margin-left: auto; border-color: #ff3333; color: #ff3333;" onclick="resetLeaderboard()">Reset Leaderboard</button>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>XP Points</th>
+                                <th>Attempts</th>
+                                <th>Anti-Cheat Flag</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Contests Tab -->
+            <div class="tab-content" id="tab-contests">
+                <div class="glass-panel" style="padding: 20px; max-width: 600px;">
+                    <h3 style="margin-bottom: 20px; color: var(--neon-blue);">Configure New Contest</h3>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <label>Contest Title</label>
+                        <input type="text" id="contest-title" class="admin-input" placeholder="E.g. Weekend Code Sprint">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <label>Duration (Minutes)</label>
+                        <input type="number" id="contest-duration" class="admin-input" placeholder="60">
+                    </div>
+                    <button class="btn-neon" onclick="createContest()" style="margin-top: 15px;">Launch Contest</button>
+                    <p id="contest-msg" style="color: var(--neon-green); margin-top: 10px; display: none;">Contest launched successfully!</p>
+                </div>
+            </div>
+
+            <!-- Announcements Tab -->
+            <div class="tab-content" id="tab-announcements">
+                <div class="glass-panel" style="padding: 20px; max-width: 600px;">
+                    <h3 style="margin-bottom: 20px; color: var(--neon-purple);">Broadcast Announcement</h3>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <label>Message Content</label>
+                        <textarea id="announcement-input" class="admin-input" rows="4" placeholder="Enter announcement text to send to all players..."></textarea>
+                    </div>
+                    <button class="btn-neon" onclick="broadcastAnnouncement()" style="margin-top: 15px;">Broadcast</button>
+                    <p id="announce-msg" style="color: var(--neon-green); margin-top: 10px; display: none;">Announcement published!</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add/Edit Question Modal -->
+    <div id="addQuestionModal" class="overlay hidden" style="z-index: 3000;">
+        <div class="overlay-content glass-panel form-modal-container" style="width: 600px; text-align: left; background: #121216;">
+            <h3 id="q-modal-title" style="color: #fff; margin-bottom: 20px;">Add New Question</h3>
+            <input type="hidden" id="q-id" value="">
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    <label>Question HTML (Snippet)</label>
+                    <textarea id="q-text" class="admin-input" rows="2" placeholder="e.g What is an Array?"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Option 1</label>
+                    <input type="text" id="q-o1" class="admin-input" placeholder="First option">
+                </div>
+                <div class="input-group">
+                    <label>Option 2</label>
+                    <input type="text" id="q-o2" class="admin-input" placeholder="Second option">
+                </div>
+                <div class="input-group">
+                    <label>Option 3</label>
+                    <input type="text" id="q-o3" class="admin-input" placeholder="Third option">
+                </div>
+                <div class="input-group">
+                    <label>Option 4</label>
+                    <input type="text" id="q-o4" class="admin-input" placeholder="Fourth option">
+                </div>
+                <div class="input-group">
+                    <label>Correct Option</label>
+                    <select id="q-ans" class="admin-input">
+                        <option value="0">Option 1</option>
+                        <option value="1">Option 2</option>
+                        <option value="2">Option 3</option>
+                        <option value="3">Option 4</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Difficulty</label>
+                    <select id="q-diff" class="admin-input"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>
+                </div>
+                <div class="input-group full-width">
+                    <label>Tags / Topic</label>
+                    <input type="text" id="q-tags" class="admin-input" value="General">
+                </div>
+            </div>
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <button class="btn-neon" style="flex: 1;" onclick="saveQuestion()">Save Details</button>
+                <button class="btn-neon" style="flex: 1; border-color: #555; background: transparent; color: #fff;" onclick="document.getElementById('addQuestionModal').classList.add('hidden')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Question Modal -->
+    <div id="viewQuestionModal" class="overlay hidden" style="z-index: 3000;">
+        <div class="overlay-content glass-panel" style="width: 500px; text-align: left; background: #121216;">
+            <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Question Details</h3>
+            <p id="vq-text" style="color: white; font-weight: bold; margin-bottom: 15px; line-height: 1.5;"></p>
+            <ul id="vq-options" style="color: #aaa; margin-left: 20px; line-height: 1.8;"></ul>
+            <p style="margin-top: 15px; color: var(--neon-green);">Correct Answer: <span id="vq-correct"></span></p>
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn-neon" style="border-color: #555; color: white;" onclick="document.getElementById('viewQuestionModal').classList.add('hidden')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="questions.js" defer></script>
+    <script src="admin.js" defer></script>
+</body>
+</html>

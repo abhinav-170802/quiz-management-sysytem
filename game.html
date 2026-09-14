@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Levels - Gamified DSA Arena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .page-content {
+            min-height: 100vh;
+        }
+        /* Overriding views logic */
+        .view {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            transform: scale(1) !important;
+            position: relative;
+            display: none; /* We toggle display manually between path and quiz */
+        }
+        .view.active {
+            display: block;
+        }
+		#view-quiz {
+			display: flex; /* Override for styling */
+		}
+    </style>
+</head>
+<body>
+
+    <!-- Path / Level Map View -->
+    <div id="view-path" class="view active">
+        <div style="position: fixed; top: 40px; left: 40px; z-index: 10;">
+            <button class="btn-neon" style="padding: 8px 16px;" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+            <h2 id="path-mode-title" style="margin-top: 20px; color: var(--neon-blue); text-transform: uppercase;">Beginner</h2>
+        </div>
+        <div id="path-container" class="path-container">
+            <!-- Dynamic SVG Path and Level Nodes Go Here -->
+        </div>
+    </div>
+
+    <!-- Quiz View -->
+    <div id="view-quiz" class="view" style="justify-content: center; align-items: center; min-height: 100vh;">
+        <div class="quiz-container glass-panel" style="width: 800px; max-width: 90%; padding: 40px; position: relative;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+                <div style="font-size: 24px; font-weight: bold; color: var(--neon-blue);">
+                    LEVEL <span id="quiz-level-indicator">1</span>
+                </div>
+                
+                <!-- Animated Timer -->
+                <div style="position: relative; width: 70px; height: 70px;">
+                    <svg viewBox="0 0 100 100" style="transform: rotate(-90deg); width: 100%; height: 100%;">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6"/>
+                        <circle id="timer-progress" cx="50" cy="50" r="45" fill="none" stroke="var(--neon-blue)" stroke-width="6" stroke-dasharray="283" stroke-dashoffset="0" style="transition: stroke-dashoffset 1s linear, stroke 0.3s; filter: drop-shadow(0 0 10px var(--neon-blue));"/>
+                    </svg>
+                    <div id="timer-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: bold; font-family: 'JetBrains Mono'; text-shadow: 0 0 10px currentColor;">30</div>
+                </div>
+            </div>
+
+            <h2 id="question-text" style="font-size: 24px; margin-bottom: 30px; line-height: 1.5;">Question text goes here?</h2>
+            
+            <div id="options-grid" style="display: flex; flex-direction: column; gap: 15px;">
+                <!-- Options injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Result Overlay -->
+    <div id="overlay-result" class="overlay hidden">
+        <div class="overlay-content glass-panel" style="width: 500px; padding: 40px; position: relative; border-radius: 20px; text-align: center; border: 2px solid var(--primary); box-shadow: 0 0 30px rgba(0,240,255,0.3); background: rgba(10, 14, 23, 0.9);">
+            
+            <!-- Theme-adapted Ribbon -->
+            <div id="result-ribbon" style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, #00ff88, #00cc66); padding: 10px 50px; border-radius: 10px; border: 2px solid #fff; box-shadow: 0 0 20px #00ff88; white-space: nowrap; z-index: 10;">
+                <h2 id="result-title" style="font-size: 32px; margin: 0; color: white; text-transform: uppercase; text-shadow: 0 0 10px white; font-weight: 800; letter-spacing: 2px;">COMPLETE</h2>
+            </div>
+            
+            <div style="position: absolute; top: -15px; left: 15px; width: 30px; height: 30px; background: rgba(0,0,0,0.5); z-index: 9; transform: rotate(45deg);"></div>
+            <div style="position: absolute; top: -15px; right: 15px; width: 30px; height: 30px; background: rgba(0,0,0,0.5); z-index: 9; transform: rotate(45deg);"></div>
+
+            <div style="margin-top: 40px;">
+                <h3 id="result-level-text" style="font-size: 36px; color: #fff; margin-bottom: 20px; font-weight: 800; letter-spacing: 2px; text-shadow: 0 0 15px var(--primary);">LEVEL <span id="result-level-num">1</span></h3>
+                
+                <div class="stars-container" id="result-stars" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.5));">
+                    <!-- Stars injected here by JS -->
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); padding: 20px 30px; border-radius: 15px; margin-bottom: 40px; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 20px rgba(0,0,0,1);">
+                    <span style="font-size: 20px; color: var(--text-muted); font-weight: bold; text-transform: uppercase;">Your Score</span>
+                    <span id="result-score" style="font-size: 36px; color: #ffd700; font-family: 'JetBrains Mono'; text-shadow: 0 0 20px #ffd700; font-weight: 800;">0</span>
+                </div>
+                
+                <p id="result-time" style="font-family: 'JetBrains Mono'; display: none;"></p>
+                <p id="result-message" style="display: none;"></p>
+                
+                <div id="result-buttons" style="display: flex; justify-content: center; gap: 20px;">
+                    <button id="btn-replay" class="btn-neon" style="flex: 1; padding: 15px; font-size: 22px; border-radius: 12px; cursor: pointer; border: 2px solid #00a2ff; background: rgba(0,162,255,0.2); color: white; transition: 0.3s; text-transform: uppercase; font-weight: 800; text-shadow: 0 0 5px white; box-shadow: 0 0 15px rgba(0,162,255,0.4);">REPLAY</button>
+                    <button id="btn-next" class="btn-neon" style="flex: 1; padding: 15px; font-size: 22px; border-radius: 12px; cursor: pointer; border: 2px solid #00ff88; background: rgba(0,255,136,0.2); color: white; transition: 0.3s; text-transform: uppercase; font-weight: 800; text-shadow: 0 0 5px white; box-shadow: 0 0 15px rgba(0,255,136,0.4);">NEXT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="questions.js" defer></script>
+    <script src="app.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('cq_user') || !localStorage.getItem('cq_currentMode')) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            state.username = localStorage.getItem('cq_user');
+            const mode = localStorage.getItem('cq_currentMode');
+            document.getElementById('view-quiz').style.display = 'none'; // Only Path active
+            openPath(mode);
+        });
+    </script>
+</body>
+</html>

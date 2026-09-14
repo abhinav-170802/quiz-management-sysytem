@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gamified DSA Arena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .page-content {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="app-navbar glass-panel" style="border-radius: 0; border-top: none; border-left: none; border-right: none; position: fixed;">
+        <div class="brand-logo">DSA<span>Arena</span></div>
+        <div class="auth-actions">
+            <button class="btn-neon" style="background: transparent; border-color: var(--neon-red); color: var(--neon-red); text-shadow: none; box-shadow: none;" onclick="document.getElementById('logoutConfirmModal').classList.remove('hidden')">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="page-content">
+        <div class="container">
+            <div class="dashboard-header glass-panel">
+                <div class="user-profile-display">
+                    <div class="avatar" id="userAvatar" onclick="document.getElementById('avatar-modal').classList.remove('hidden')">
+                        <span id="avatarEmoji">👨‍💻</span>
+                    </div>
+                    <div class="user-info" style="width: 250px;">
+                        <h2 id="dashUsername">PlayerOne</h2>
+                        <p style="margin-bottom: 5px;">Rank: <span id="dashRank" style="color: #ffd700;">Novice</span></p>
+                        <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                            <div id="dashXpBar" style="height: 100%; width: 0%; background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); transition: width 1s ease-in-out;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="dashScore">0</div>
+                        <div class="stat-label">Total XP</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="dashStars">0</div>
+                        <div class="stat-label">Stars</div>
+                    </div>
+                    <div class="stat-box" style="border-color: #ff5e00; box-shadow: inset 0 0 15px rgba(255,94,0,0.1);">
+                        <div class="stat-value" id="dashStreak" style="color: #ff5e00; font-family: 'JetBrains Mono';">0 🔥</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Announcements Section -->
+            <div id="announcement-banner" class="glass-panel hidden" style="background: rgba(112, 0, 255, 0.2); border-left: 5px solid #b026ff; margin-bottom: 25px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="color: #b026ff; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">📢 Official Announcement</strong>
+                    <p id="announcement-text" style="color: white; margin-top: 5px; font-size: 16px;">Welcome to the Arena!</p>
+                </div>
+                <button onclick="document.getElementById('announcement-banner').style.display='none'" style="background: transparent; border: none; color: white; cursor: pointer; font-size: 24px; padding: 0 10px;">×</button>
+            </div>
+
+            <h3 style="font-size: 24px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;">Select Mode</h3>
+            <div class="modes-grid" id="dashboardModesGrid">
+                <!-- Javascript will populate game modes here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Avatar Selection Modal -->
+    <div id="avatar-modal" class="overlay hidden">
+        <div class="overlay-content glass-panel" style="width: 400px; padding: 30px;">
+            <h3 style="margin-bottom: 20px;">Choose Avatar</h3>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 10px; font-size: 14px; color: var(--text-muted);">Upload Image URL (Optional)</label>
+                <input type="text" id="avatarUrlInput" placeholder="https://..." style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); border-radius: 6px; color: white; outline: none;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 10px; font-size: 14px; color: var(--text-muted);">Upload Image from Device</label>
+                <input type="file" id="avatarFileInput" accept="image/*" onchange="handleLocalImageUpload(event)" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); border-radius: 6px; color: white; outline: none;">
+            </div>
+            <p style="text-align: center; color: var(--text-muted); margin: 15px 0;">OR select emoji:</p>
+            <div class="emoji-grid">
+                <button class="emoji-btn" onclick="selectAvatar('👨‍💻')">👨‍💻</button>
+                <button class="emoji-btn" onclick="selectAvatar('👩‍💻')">👩‍💻</button>
+                <button class="emoji-btn" onclick="selectAvatar('🤖')">🤖</button>
+                <button class="emoji-btn" onclick="selectAvatar('👾')">👾</button>
+                <button class="emoji-btn" onclick="selectAvatar('🧠')">🧠</button>
+                <button class="emoji-btn" onclick="selectAvatar('⚡')">⚡</button>
+                <button class="emoji-btn" onclick="selectAvatar('🚀')">🚀</button>
+                <button class="emoji-btn" onclick="selectAvatar('🔥')">🔥</button>
+                <button class="emoji-btn" onclick="selectAvatar('💎')">💎</button>
+                <button class="emoji-btn" onclick="selectAvatar('👑')">👑</button>
+            </div>
+            <button class="btn-neon" style="width: 100%; margin-top: 20px;" onclick="closeAvatarModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutConfirmModal" class="overlay hidden" style="z-index: 2000;">
+        <div class="overlay-content glass-panel form-modal-container" style="width: 400px; text-align: center; padding: 40px; background: #121216;">
+            <h3 style="color: #fff; margin-bottom: 30px; font-weight: 500;">Are you sure you want to logout?</h3>
+            <div style="display: flex; gap: 20px; justify-content: center;">
+                <button class="btn-neon" style="flex: 1; padding: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.2);" onclick="document.getElementById('logoutConfirmModal').classList.add('hidden')">No</button>
+                <button class="btn-neon" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #ff003c, #ff5e00); border: none;" onclick="logoutUser()">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="questions.js" defer></script>
+    <script src="app.js" defer></script>
+    <script>
+        // Initialize dashboard specifically on load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('cq_user')) {
+                window.location.href = 'index.html'; // Redirect to login if not authenticated
+            } else {
+                state.username = localStorage.getItem('cq_user') || 'PlayerOne'; 
+                initDashboard();
+            }
+        });
+    </script>
+</body>
+</html>

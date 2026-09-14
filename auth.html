@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication - Gamified DSA Arena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+
+    <!-- Background Parallax -->
+    <div id="watermark" class="watermark-puzzle">
+        <div class="wm-part wm-1"></div>
+        <div class="wm-part wm-2"></div>
+        <div class="wm-part wm-3"></div>
+        <div class="wm-part wm-4"></div>
+    </div>
+
+    <!-- Login Container -->
+    <div id="loginContainer" class="overlay-content glass-panel" style="width: 450px; text-align: left; position: relative;">
+        <h2 style="color: #fff; text-align: center; margin-bottom: 20px;">Access DataStream</h2>
+        
+        <!-- User / Admin Toggle -->
+        <div style="display: flex; background: rgba(0,0,0,0.5); border-radius: 20px; margin-bottom: 25px; overflow: hidden; position: relative; border: 1px solid var(--glass-border);">
+            <div id="authSlider" style="position: absolute; width: 50%; height: 100%; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); border-radius: 20px; transition: 0.3s; left: 0;"></div>
+            <button type="button" onclick="setAuthMode('user')" style="flex: 1; padding: 10px; background: transparent; border: none; color: white; font-weight: bold; cursor: pointer; position: relative; z-index: 1;">User Login</button>
+            <button type="button" onclick="setAuthMode('admin')" style="flex: 1; padding: 10px; background: transparent; border: none; color: white; font-weight: bold; cursor: pointer; position: relative; z-index: 1;">Admin Login</button>
+        </div>
+
+        <form id="standaloneLoginForm">
+            <div class="input-group">
+                <label>Username / Admin ID</label>
+                <input type="text" id="loginUsername" required placeholder="Enter Username">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" required placeholder="••••••••">
+            </div>
+            <div style="text-align: right; margin-bottom: 10px;">
+                <a href="#" style="color: var(--text-muted); font-size: 13px; text-decoration: none;" onclick="showResetPassword()">Forgot Password?</a>
+            </div>
+            <button type="submit" class="btn-neon" style="width: 100%; margin-top: 20px;">Login to Dashboard</button>
+        </form>
+        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);">
+            Not registered? <a style="color: var(--neon-blue); cursor: pointer;" onclick="toggleAuth()">Sign Up</a>
+        </div>
+        <button class="btn-neon" style="position: absolute; top: -15px; right: -15px; background: #000; border-radius: 50%; padding: 5px 12px;" onclick="window.location.href='index.html'">×</button>
+    </div>
+
+    <!-- Sign Up Container -->
+    <div id="signupContainer" class="overlay-content glass-panel" style="width: 500px; text-align: left; display: none; position: relative;">
+        <h2 style="color: #fff; text-align: center; margin-bottom: 20px;">Initialize Profile</h2>
+        
+        <form id="standaloneSignupForm">
+            <div class="input-group"><label>Full Name</label><input type="text" required></div>
+            <div class="input-group"><label>Email</label><input type="email" id="email" required></div>
+            <div class="input-group"><label>College/University</label><input type="text" required></div>
+            <div class="input-group"><label>Username</label><input type="text" id="regUsername" required></div>
+            <div class="input-group"><label>Password</label><input type="password" id="password" required></div>
+            <div class="input-group"><label>Confirm Password</label><input type="password" id="confirmPassword" required></div>
+            
+            <button type="submit" class="btn-neon" style="width: 100%; margin-top: 10px;">Register Account</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);">
+            Already registered? <a style="color: var(--neon-blue); cursor: pointer;" onclick="toggleAuth()">Login</a>
+        </div>
+        <button class="btn-neon" style="position: absolute; top: -15px; right: -15px; background: #000; border-radius: 50%; padding: 5px 12px;" onclick="window.location.href='index.html'">×</button>
+    </div>
+
+    <!-- Reset Password Container -->
+    <div id="resetContainer" class="overlay-content glass-panel" style="width: 450px; text-align: left; display: none; position: relative;">
+        <h2 style="color: #fff; text-align: center; margin-bottom: 20px;">Reset Password</h2>
+        <form id="standaloneResetForm">
+            <div class="input-group">
+                <label>Username / Email</label>
+                <input type="text" id="resetInput" required placeholder="Enter info to reset">
+            </div>
+            <button type="submit" class="btn-neon" style="width: 100%; margin-top: 20px; background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));">Send Reset Link</button>
+        </form>
+        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);">
+            Remembered? <a style="color: var(--neon-blue); cursor: pointer;" onclick="document.getElementById('resetContainer').style.display='none'; document.getElementById('loginContainer').style.display='block';">Log In</a>
+        </div>
+        <button class="btn-neon" style="position: absolute; top: -15px; right: -15px; background: #000; border-radius: 50%; padding: 5px 12px;" onclick="window.location.href='index.html'">×</button>
+    </div>
+
+    <!-- Scripting -->
+    <script>
+        function toggleAuth() {
+            const l = document.getElementById('loginContainer');
+            const s = document.getElementById('signupContainer');
+            if(l.style.display === 'none') {
+                l.style.display = 'block';
+                s.style.display = 'none';
+            } else {
+                l.style.display = 'none';
+                s.style.display = 'block';
+            }
+        }
+
+        let currentLoginMode = 'user';
+        function setAuthMode(mode) {
+            currentLoginMode = mode;
+            const slider = document.getElementById('authSlider');
+            if (mode === 'admin') {
+                slider.style.left = '50%';
+                document.getElementById('loginUsername').placeholder = 'Enter Admin ID';
+            } else {
+                slider.style.left = '0%';
+                document.getElementById('loginUsername').placeholder = 'Enter Username';
+            }
+        }
+
+        function showResetPassword() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('resetContainer').style.display = 'block';
+        }
+
+        document.getElementById('standaloneResetForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Password reset link sent to registered email/phone!');
+            document.getElementById('resetContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'block';
+        });
+
+        document.getElementById('standaloneLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('loginUsername').value;
+            const pass = document.getElementById('loginPassword').value;
+            
+            try {
+                const res = await fetch('login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass, role: currentLoginMode })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    if (currentLoginMode === 'admin') {
+                        localStorage.setItem('cq_admin', 'true');
+                        localStorage.setItem('cq_user_id', data.user.id);
+                        window.location.href = 'admin.html';
+                    } else {
+                        localStorage.setItem('cq_user', data.user.name);
+                        localStorage.setItem('cq_user_id', data.user.id);
+                        window.location.href = 'dashboard.html';
+                    }
+                } else {
+                    alert('Login failed: ' + data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error. Is backend running?');
+            }
+        });
+
+        document.getElementById('standaloneSignupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.querySelectorAll('#standaloneSignupForm input')[0].value;
+            const email = document.getElementById('email').value;
+            const username = document.getElementById('regUsername').value;
+            const pass = document.getElementById('password').value;
+            const conf = document.getElementById('confirmPassword').value;
+            
+            if(pass !== conf) return alert('Passwords do not match');
+            
+            try {
+                // Using username as name 
+                const res = await fetch('signup.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: username, email: email, password: pass })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Account registered! Proceed to login.');
+                    document.getElementById('loginUsername').value = document.getElementById('regUsername').value;
+                    toggleAuth();
+                } else {
+                    alert('Registration failed: ' + data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error. Is backend running?');
+            }
+        });
+    </script>
+</body>
+</html>
